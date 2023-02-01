@@ -2,8 +2,7 @@
 - 2022년 12월 12일 ~ 2023년 1월 11일
 - 6인 팀 프로젝트
 
-
-</br>
+<br>
 
 ## 2. 사용 기술
 
@@ -20,11 +19,10 @@
   - HTML/CSS
   - Javascript
 
-</br>
+<br>
 
 ## 3. ERD 설계
-![](https://zuminternet.github.io/images/portal/post/2019-04-22-ZUM-Pilot-integer/final_erd.png)
-
+![farmfarm ERD](https://user-images.githubusercontent.com/110653575/216096409-23864202-486c-4dbb-a65f-9d7aebd232ad.png)
 
 ## 4. 핵심 기능
 
@@ -33,11 +31,27 @@
 <div markdown="1">
 
 ### 4.1. 장바구니
-![](https://zuminternet.github.io/images/portal/post/2019-04-22-ZUM-Pilot-integer/flow1.png)
 
-### 4.2. 쇼핑몰 상품 등록/삭제
-![](https://zuminternet.github.io/images/portal/post/2019-04-22-ZUM-Pilot-integer/flow_vue.png)
+<img src="https://user-images.githubusercontent.com/110653575/216096694-c254d362-de04-437b-9a98-7c1e92f01758.png" width="50%"/>
 
+<br>
+
+- 회원번호와 제품번호 복합키를 통해 저장된 장바구니 테이블에서 회원별로 모든 장바구니 제품 조회
+  * 품절된 상품의 경우 품절 표시 및 선택/주문 불가 처리
+  * 재고 수보다 많은 수가 장바구니에 담길 경우 재고 수만큼으로 수량 맞춤
+  * 장바구니 추가시 기존에 있는 제품일 경우 수량만 증가
+- 회원의 주소 조회, 배송지 추가/변경/삭제 가능
+- 코드확인
+  * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/controller/CartController.java)
+  * [DAO](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/dao/CartDAO.java)
+  * [Service](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/service/CartServiceImpl.java)
+
+<br>
+<br>
+
+### 4.2. 쇼핑몰 상품 등록/수정
+
+<img src="https://user-images.githubusercontent.com/110653575/216112177-ef236e62-c481-4dce-8416-0dae6e32c226.JPG" width="40%" height="50%"/><img src="https://user-images.githubusercontent.com/110653575/216112197-f1dddf09-85fa-4070-b91d-2e93393cfa98.JPG" width="40%"/>
 
 ### 4.3. 쇼핑몰 상품 재고관리
 
