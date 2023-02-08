@@ -44,7 +44,6 @@
 - 코드확인
   * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/controller/CartController.java)
   * [Service](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/service/CartServiceImpl.java)
-  * [DAO](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/dao/CartDAO.java)
   * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/cart-mapper.xml)
   * [JS](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/webapp/resources/js/order/cart.js)
 	
