@@ -43,9 +43,11 @@
 - 회원의 주소 조회, 배송지 추가/변경/삭제 가능
 - 코드확인
   * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/controller/CartController.java)
-  * [DAO](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/dao/CartDAO.java)
   * [Service](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/service/CartServiceImpl.java)
-
+  * [DAO](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/cart/model/dao/CartDAO.java)
+  * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/cart-mapper.xml)
+  * [JS](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/webapp/resources/js/order/cart.js)
+	
 <br>
 <br>
 
@@ -53,24 +55,144 @@
 
 <img src="https://user-images.githubusercontent.com/110653575/216112177-ef236e62-c481-4dce-8416-0dae6e32c226.JPG" width="38.5%"/><img src="https://user-images.githubusercontent.com/110653575/216112197-f1dddf09-85fa-4070-b91d-2e93393cfa98.JPG" width="40%"/>
 
+<br>
+
+- 상품 등록 시
+  * 신규 상품 등록 후 상품 번호를 받아와 이미지 삽입
+  * 썸네일은 이미지 미리보기로 제공, 상품 설명 이미지 파일은 파일 명으로 표시
+  * 게시글 필수 내용 유효성 검사 진행
+- 상품 수정 시
+  * 상품 기본 정보 불러오기
+  * 상품 정보 이미지의 경우 input의 label을 만들어서 원본 이미지명으로 표시
+  * 수정 완료 후 해당 상품 판매 페이지로 이동
+	
+- 상품 등록 코드확인
+  * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/controller/ProductAdminController.java#L41)
+  * [Service](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/model/service/ProductAdminServiceImpl.java#L28)
+  * [DAO](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/model/dao/ProductAdminDAO.java#L27)
+  * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/productAdmin-mapper.xml#L88)
+	
+- 상품 수정 코드확인
+  * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/controller/ProductAdminController.java#L144)
+  * [Service](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/model/service/ProductAdminServiceImpl.java#L141)
+  * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/productAdmin-mapper.xml#L220)
+	
+<br>
+<br>
+
 ### 4.3. 쇼핑몰 상품 재고관리
+<img src="https://user-images.githubusercontent.com/110653575/217525269-223614a9-bec0-46db-ac1a-3c0b76ef7af4.JPG" width="50%"> 
 
+<br>
 
+- 판매자 재고관리 페이지에서 입/출고 비동기 구현
+  * 보유재고 / 실재고 변경
+  * 판매상태 변경 비동기 구현(판매중 / 품절)
+- trigger를 통해 제품 최초입고/판매/관리자입고/관리자출고/주문취소에 따른 실시간 재고 반영
+	
+- 코드확인
+  * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/controller/ProductAdminController.java#L71)
+  * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/productAdmin-mapper.xml#L186)
+  
+  * Trigger
+~~~sql
+CREATE OR REPLACE TRIGGER STOCK_TRG
+AFTER INSERT ON STOCK_HISTORY
+FOR EACH ROW
+	BEGIN
+		-- 0:최초입고
+		IF :NEW.STOCK_STATUS = 0
+		THEN 
+			UPDATE PRODUCT SET STOCK = STOCK + :NEW.PRODUCT_AMOUNT
+			WHERE PRODUCT_NO = :NEW.PRODUCT_NO;
+		END IF;
+		-- 1:판매
+		IF :NEW.STOCK_STATUS = 1
+		THEN 
+			UPDATE PRODUCT SET STOCK = STOCK - :NEW.PRODUCT_AMOUNT
+			WHERE PRODUCT_NO = :NEW.PRODUCT_NO;
+		END IF;
+		-- 2:관리자 입고
+		IF :NEW.STOCK_STATUS = 2
+		THEN 
+			UPDATE PRODUCT SET STOCK = STOCK + :NEW.PRODUCT_AMOUNT
+			WHERE PRODUCT_NO = :NEW.PRODUCT_NO;
+		END IF;
+		-- 3:관리자 출고
+		IF :NEW.STOCK_STATUS = 3
+		THEN 
+			UPDATE PRODUCT SET STOCK = STOCK - :NEW.PRODUCT_AMOUNT
+			WHERE PRODUCT_NO = :NEW.PRODUCT_NO;
+		END IF;
+		-- 4:주문취소
+		IF :NEW.STOCK_STATUS = 4
+		THEN 
+			UPDATE PRODUCT SET STOCK = STOCK + :NEW.PRODUCT_AMOUNT
+			WHERE PRODUCT_NO = :NEW.PRODUCT_NO;
+		END IF;
+	END;
+/
+~~~
+	
+<br>
+<br>
+
+	
 ### 4.4. 주문내역 기간조회/검색
+<img src="https://user-images.githubusercontent.com/110653575/217525342-cbbb7234-0525-455f-8972-3eb4b4faa929.png" width="50%">
 
-![](https://zuminternet.github.io/images/portal/post/2019-04-22-ZUM-Pilot-integer/flow_service1.png)
+<br>
 
+- 전체 주문내역 조회
+  * 클릭 시 해당 주문 상세조회 모달 창 생성
+  * 모달 창에서 주문상태 변경 가능
+  * 주문완료 상태인 경우 송장번호 입력 활성화
+- 기간 설정 및 검색 기능
+  * 당월조회 / 전월조회 / 기간 선택조회 가능
+  * 회원ID와 주문번호로 검색 가능(기간 설정 / 미설정 시 모두 가능)
+- 코드확인
+  * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/productAdmin/controller/ProductAdminController.java#L210)
+  * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/productAdmin-mapper.xml#L309)
+  * [JS](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/webapp/resources/js/productAdmin/productOrderList.js)
 
+<br>
+<br>
+
+	
 ### 4.5. 주문내역 배송조회
+<img src="https://user-images.githubusercontent.com/110653575/217525908-a947e9a1-d6a2-4407-a8ca-fd43246ecf12.png" width="50%">
 
-![](https://zuminternet.github.io/images/portal/post/2019-04-22-ZUM-Pilot-integer/flow_repo.png)
+<br>
 
-- **컨텐츠 저장** :pushpin: [코드 확인]()
-  - URL 유효성 체크와 이미지, 제목 파싱이 끝난 컨텐츠는 DB에 저장합니다.
-  - 저장된 컨텐츠는 다시 Repository - Service - Controller를 거쳐 화면단에 송출됩니다.
+- delivery-tracker api를 사용한 배송 추적
+- 코드확인
+  * [JS](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/webapp/resources/js/productAdmin/productOrderList.js#L666)
 
+<br>
+<br>
 
+	
 ### 4.6. 판매자 페이지 상품조회
+<img src="https://user-images.githubusercontent.com/110653575/217526110-b68d3a42-a493-472b-bfd6-ad4ca5f0f48b.jpeg" width="50%">
+	
+<br>
+
+- 판매자가 본인의 판매자 페이지 접속 시
+  * 판매상품 등록/수정/삭제 가능
+  * 비동기로 판매 중인 상품 판매완료 처리
+- 판매자의 판매상품 리스트 조회
+  * 판매 중인 글만 보기 가능
+  * 판매 중인 글만 볼 때 ajax로 pagination 구현
+  
+- 코드확인
+  * [Controller](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/seller/controller/SellerController.java)
+  * [Service](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/seller/model/service/SellerServiceImpl.java)
+  * [DAO](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/java/edu/kh/farmfarm/seller/model/dao/SellerDAO.java)
+  * [Mapper](https://github.com/Hyunjae/FarmFarm/blob/main/FarmFarm/src/main/resources/mappers/seller-mapper.xml)
+
+<br>
+<br>
+
 
 </div>
 </details>
@@ -179,8 +301,3 @@ public List<Cart> selectCartList(int memberNo) {
 - 품절의 경우 비교적 쉽게 mapper에 SOLDOUT_FL를 추가하여 <br>
   장바구니를 조회할 때마다 확인할 수 있도록 하였습니다.
   
-
-    
-## 6. 회고 / 느낀점
->프로젝트 개발 회고 글: https://zuminternet.github.io/ZUM-Pilot-integer/
-
